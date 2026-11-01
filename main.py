@@ -1,42 +1,80 @@
 import flet as ft
+# Importando as visões do nosso pacote frontend
+from frontend.views import get_merge_view, get_split_view, get_compress_view, get_rotate_view
 
 def main(page: ft.Page):
-    # Configurações de layout e design da janela principal (UX/UI Studio)
     page.title = "PDF Toolbox - Modern & Secure"
     page.window_width = 1000
     page.window_height = 700
     page.window_resizable = True
-    
-    # Aplicação de identidade visual: Tema Escuro Profissional (Material Design 3)
     page.theme_mode = ft.ThemeMode.DARK
     page.theme = ft.Theme(color_scheme_seed=ft.colors.BLUE_GREY)
     
-    # Alinhamento do conteúdo na tela
-    page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
-    page.vertical_alignment = ft.MainAxisAlignment.CENTER
+    # Dicionário mapeando o índice do menu para a respectiva função de visualização
+    views = {
+        0: get_merge_view,
+        1: get_split_view,
+        2: get_compress_view,
+        3: get_rotate_view
+    }
 
-    # Componente visual temporário de boas-vindas
-    welcome_text = ft.Text(
-        value="Bem-vindo ao PDF Toolbox 🚀", 
-        size=32, 
-        weight=ft.FontWeight.BOLD,
-        color=ft.colors.BLUE_200
-    )
-    
-    subtitle_text = ft.Text(
-        value="A engine do backend está integrada. Pronto para construir os módulos visuais.",
-        size=16,
-        color=ft.colors.GREY_400
+    # Container principal à direita que receberá o conteúdo de cada tela dinamicamente
+    content_area = ft.Container(
+        content=views[0](), # Inicializa exibindo a tela de Mesclagem (índice 0)
+        expand=True
     )
 
-    # Adiciona os elementos à tela do usuário
+    # Evento disparado quando o usuário clica em um botão do menu lateral
+    def on_navigation_change(e):
+        selected_index = e.control.selected_index
+        # Atualiza o conteúdo do container dinâmico com a view correspondente
+        content_area.content = views[selected_index]()
+        page.update()
+
+    # Barra de Navegação Lateral Esquerda (UI Design Pattern Moderno)
+    nav_rail = ft.NavigationRail(
+        selected_index=0,
+        label_type=ft.NavigationRailLabelType.ALL,
+        min_width=100,
+        min_extended_width=200,
+        # Definição dos destinos (Ícones + Textos)
+        destinations=[
+            ft.NavigationRailDestination(
+                icon=ft.icons.CALL_MERGE, 
+                selected_icon=ft.icons.CALL_MERGE, 
+                label="Mesclar"
+            ),
+            ft.NavigationRailDestination(
+                icon=ft.icons.CALL_SPLIT, 
+                selected_icon=ft.icons.CALL_SPLIT, 
+                label="Dividir"
+            ),
+            ft.NavigationRailDestination(
+                icon=ft.icons.COMPRESS, 
+                selected_icon=ft.icons.COMPRESS, 
+                label="Compactar"
+            ),
+            ft.NavigationRailDestination(
+                icon=ft.icons.LOOKS_ONE, 
+                selected_icon=ft.icons.ROTATE_RIGHT, 
+                label="Rotacionar"
+            ),
+        ],
+        on_change=on_navigation_change,
+        bgcolor=ft.colors.SURFACE_VARIANT
+    )
+
+    # Adiciona a estrutura layout lado a lado (Menu à esquerda, Conteúdo à direita)
     page.add(
-        ft.Column(
-            controls=[welcome_text, subtitle_text],
-            horizontal_alignment=ft.CrossAxisAlignment.CENTER
+        ft.Row(
+            controls=[
+                nav_rail,
+                ft.VerticalDivider(width=1), # Linha sutil separadora de ambiente
+                content_area
+            ],
+            expand=True
         )
     )
 
 if __name__ == "__main__":
-    # Inicializa a aplicação como uma janela desktop nativa elegante
     ft.app(target=main)
