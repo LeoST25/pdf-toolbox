@@ -12,9 +12,9 @@ def main(page: ft.Page):
     # Dicionário de rotas injetando a dependência da 'page' onde necessário
     views = {
         0: lambda: get_merge_view(page),
-        1: get_split_view,
-        2: get_compress_view,
-        3: get_rotate_view
+        1: lambda: get_split_view(page),
+        2: lambda: get_compress_view(page),
+        3: lambda: get_rotate_view(page)
     }
 
     content_area = ft.Container(
